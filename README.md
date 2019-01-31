@@ -1,6 +1,9 @@
 # pig-game
 2 Player Dice Rolling App
 
+ABOUT
+This was a guided build with Jonas Schmedtmann's Udemy Course "The Complete JS Course 2019: Build Real Projects!"
+
 
 GAME RULES:
 
