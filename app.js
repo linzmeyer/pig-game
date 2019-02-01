@@ -8,22 +8,16 @@ GAME RULES:
 - The player can choose to 'Hold', which means that his ROUND score gets added to his GLOBAL score. After that, it's the next player's turn
 - The first player to reach 100 points on GLOBAL score wins the game
 
-Version 2 Additions
-- 1. A player looses his ENTIRE score when they roll two 6's in a row. After that, it's the next player's turn.
-    - saved the previous dice roll in a separate variable.
-- 2. Add an input field to the HTML where players can set the winning score while playing.
-- 3. Add another die to the game. The player will lose their current score if one of the dice is a 1 or if they roll a 6 twice with the same die.
+Version 3 Commits
+- Refactoring funcitons
 
 */
 
 // Global Variables
-var scores, roundScore, activePlayer, gamePlaying;
+var scores, roundScore, activePlayer, gamePlaying, lastDice1, lastDice2;
 
 // initialize the game.
 init();
-
-var lastDice1;
-var lastDice2;
 
 // When btn-roll is clicked
 document.querySelector( '.btn-roll' ).addEventListener( 'click', function() {
@@ -56,6 +50,7 @@ document.querySelector( '.btn-roll' ).addEventListener( 'click', function() {
             // Next player's turn
             nextPlayer();
         }
+        // Set values of last roll.
         lastDice1 = dice1;
         lastDice2 = dice2;
     }
@@ -87,8 +82,7 @@ document.querySelector( '.btn-hold' ).addEventListener( 'click', function() {
         // 4. Check if player won the game
         if( scores[activePlayer] >= winningScore ) {
             document.getElementById( 'name-' + activePlayer ).textContent = 'Winner!';
-            document.getElementById( 'dice-1' ).style.display = 'none';
-            document.getElementById( 'dice-2' ).style.display = 'none';
+            hideDice();
             document.querySelector( '.player-' + activePlayer + '-panel' ).classList.add( 'winner' );
             document.querySelector( '.player-' + activePlayer + '-panel' ).classList.remove( 'active' );
             gamePlaying = false;
@@ -100,6 +94,9 @@ document.querySelector( '.btn-hold' ).addEventListener( 'click', function() {
     }
 });
 
+// When btn-new is clicked, initialize new game.
+document.querySelector( '.btn-new' ).addEventListener( 'click', init );
+
 // Go to next player
 function nextPlayer() {
     // Next player's turn
@@ -109,18 +106,11 @@ function nextPlayer() {
     document.getElementById( 'current-0' ).textContent = '0';
     document.getElementById( 'current-1' ).textContent = '0';
 
-    // document.querySelector('.player-0-panel').classList.remove('active');
-    // document.querySelector('.player-1-panel').classList.add('active');
-
     document.querySelector( '.player-0-panel' ).classList.toggle( 'active' );
     document.querySelector( '.player-1-panel' ).classList.toggle( 'active' );
 
-    document.getElementById( 'dice-1' ).style.display = 'none';
-    document.getElementById( 'dice-2' ).style.display = 'none';
+    hideDice();
 }
-
-// When btn-new is clicked
-document.querySelector( '.btn-new' ).addEventListener( 'click', init );
 
 // initialize a new game.
 function init() {
@@ -131,8 +121,7 @@ function init() {
     
     
     // Hide Dice
-    document.getElementById( 'dice-1' ).style.display = 'none';
-    document.getElementById( 'dice-2' ).style.display = 'none';
+    hideDice();
 
     // getElementById is best choice when manipulating a specific element.
     document.getElementById( 'score-0' ).textContent = '0';
@@ -149,7 +138,10 @@ function init() {
     
 }
 
-
+function hideDice() {
+    document.getElementById( 'dice-1' ).style.display = 'none';
+    document.getElementById( 'dice-2' ).style.display = 'none';
+}
 
 
 
