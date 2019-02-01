@@ -1,4 +1,5 @@
 /*
+
 GAME RULES:
 
 - The game has 2 players, playing in rounds
@@ -6,6 +7,12 @@ GAME RULES:
 - BUT, if the player rolls a 1, all his ROUND score gets lost. After that, it's the next player's turn
 - The player can choose to 'Hold', which means that his ROUND score gets added to his GLOBAL score. After that, it's the next player's turn
 - The first player to reach 100 points on GLOBAL score wins the game
+
+Version 2 Additions
+- 1. A player looses his ENTIRE score when they roll two 6's in a row. After that, it's the next player's turn.
+    - saved the previous dice roll in a separate variable.
+- 2. Add an input field to the HTML where players can set the winning score while playing.
+- 3. Add another die to the game. The player will lose their current score if one of the dice is a 1 or if they roll a 6 twice with the same die.
 
 */
 
@@ -15,28 +22,42 @@ var scores, roundScore, activePlayer, gamePlaying;
 // initialize the game.
 init();
 
+var lastDice1;
+var lastDice2;
+
 // When btn-roll is clicked
 document.querySelector( '.btn-roll' ).addEventListener( 'click', function() {
     if( gamePlaying ) {
         // 1. Set random number.
-        var dice = Math.floor( Math.random() * 6 ) + 1;
+        var dice1 = Math.floor( Math.random() * 6 ) + 1;
+        var dice2 = Math.floor( Math.random() * 6 ) + 1;
+        
+        // 2. Display rndm #s in the dice
+        document.getElementById( 'dice-1' ).style.display = 'block';
+        document.getElementById( 'dice-2' ).style.display = 'block';
+        document.getElementById( 'dice-1' ).src = 'dice-' + dice1 + '.png';
+        document.getElementById( 'dice-2' ).src = 'dice-' + dice2 + '.png';
 
-        // 2. Display result in the die
-        var diceDOM = document.querySelector( '.dice' );
-        diceDOM.style.display = 'block';
-        diceDOM.src = 'dice-' + dice + '.png';
-
-        // 3. Update the round score IF the rolled number was NOT a 1
-        if ( dice !== 1 ) {
-            // Add score
-            roundScore += dice;
+        // 3. Update the round score
+        if (( dice1 === 6 && lastDice1 === 6 ) || ( dice2 === 6 && lastDice2 === 6 )) { // IF either of the dice roll a 6 twice in a row.
+            // Player resets score (harsh!)
+            scores[activePlayer] = 0;
+            // Update the DOM
+            document.querySelector( '#score-' + activePlayer ).textContent = '0';
+            // Go to next player
+            nextPlayer();
+        }
+        else if ( dice1 !== 1 && dice2 !== 1 ) { // IF either of the dice was NOT a 1
+            // Add the round score to the global score.
+            roundScore += ( dice1 + dice2 );
             document.querySelector( '#current-' + activePlayer ).textContent = roundScore;
         }
         else {
             // Next player's turn
-            
             nextPlayer();
         }
+        lastDice1 = dice1;
+        lastDice2 = dice2;
     }
 });
 
@@ -47,13 +68,27 @@ document.querySelector( '.btn-hold' ).addEventListener( 'click', function() {
         // 1. Add current score to global score
         scores[activePlayer] += roundScore;
 
-        // 2. Update the UI
+        // 2. Update the DOM (use id of score-#)
         document.querySelector( '#score-' + activePlayer ).textContent = scores[ activePlayer ];
-
-        // 3. Check if player won the game
-        if( scores[activePlayer] >= 100 ) {
+        
+        // 3. Grab input field value.
+        var input = document.querySelector('.final-score').value; //
+        var winningScore;
+        // Check if input is empty
+            // Undefined, 0, null, or "" are coerced to false.
+            // Anything else is coerced to true.
+        if( input ) {
+            winningScore = input;
+        }
+        else {
+            winningScore = 100; // Set default winning score to 100.
+        }
+        
+        // 4. Check if player won the game
+        if( scores[activePlayer] >= winningScore ) {
             document.getElementById( 'name-' + activePlayer ).textContent = 'Winner!';
-            document.querySelector( '.dice' ).style.display = 'none';
+            document.getElementById( 'dice-1' ).style.display = 'none';
+            document.getElementById( 'dice-2' ).style.display = 'none';
             document.querySelector( '.player-' + activePlayer + '-panel' ).classList.add( 'winner' );
             document.querySelector( '.player-' + activePlayer + '-panel' ).classList.remove( 'active' );
             gamePlaying = false;
@@ -80,7 +115,8 @@ function nextPlayer() {
     document.querySelector( '.player-0-panel' ).classList.toggle( 'active' );
     document.querySelector( '.player-1-panel' ).classList.toggle( 'active' );
 
-    document.querySelector( '.dice' ).style.display = 'none';
+    document.getElementById( 'dice-1' ).style.display = 'none';
+    document.getElementById( 'dice-2' ).style.display = 'none';
 }
 
 // When btn-new is clicked
@@ -93,8 +129,10 @@ function init() {
     roundScore = 0;
     gamePlaying = true;
     
-    // querySelector is best choice when doing CSS class manipulation
-    document.querySelector( '.dice' ).style.display = 'none';
+    
+    // Hide Dice
+    document.getElementById( 'dice-1' ).style.display = 'none';
+    document.getElementById( 'dice-2' ).style.display = 'none';
 
     // getElementById is best choice when manipulating a specific element.
     document.getElementById( 'score-0' ).textContent = '0';
